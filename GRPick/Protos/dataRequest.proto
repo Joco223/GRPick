@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+option csharp_namespace = "GRPick";
+
+package dataRequest;
+
+service GRPickResponder {
+	rpc GetAllObjects (GetObjects) returns (GetObjectsResponse);
+	rpc GetAllFunctions (GetFunctions) returns (GetFunctionsResponse);
+	rpc CallFunction (DataRequest) returns (DataResponse);
+	rpc QueryData (QueryRequest) returns (DataResponse);
+}
+
+message DataRequest {
+	string functionName = 1;
+	repeated string paramterers = 2;
+}
+
+message DataResponse {
+	bool failed = 1;
+	string message = 2;
+	string dataJSON = 3;
+}
+
+message QueryRequest {
+	string queryName = 1;
+	repeated string paramterers = 2;
+	repeated string properties = 3;
+	optional bool useEnumNames = 4;
+}
+
+message GetObjects {}
+
+message GetObjectsResponse {
+	repeated Object objects = 1;
+}
+
+message GetFunctions {}
+
+message GetFunctionsResponse {
+	repeated Function functions = 1;
+}
+
+message Object {
+	string name = 1;
+	repeated Property properties = 2;
+	repeated Function methods = 3;
+}
+
+message Property {
+	string name = 1;
+	string type = 2;
+}
+
+message Function {
+	string name = 1;
+	repeated FunctionArgument arguments = 2;
+}
+
+message FunctionArgument {
+	string name = 1;
+	string type = 2;
+}
