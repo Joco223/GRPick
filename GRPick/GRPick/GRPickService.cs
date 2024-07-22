@@ -49,13 +49,13 @@ namespace GRPick.GRPick
 			}
 
 			// Get the SelectQuery attribute from the requested query
-			var selectQueryAttribute = functionToCall.GetCustomAttribute(typeof(SelectQuery), true);
+			var selectQueryAttribute = functionToCall.GetCustomAttribute(typeof(SelectFunction), true);
 
 			if (selectQueryAttribute is null)
 				return (false, "Error getting attribute");
 
 			// Find parent type of the query
-			var parentType = ((SelectQuery)selectQueryAttribute).ParentType;
+			var parentType = ((SelectFunction)selectQueryAttribute).ParentType;
 
 			// Make an instance of the parent type
 			var classInstance = parentType.GetConstructors().First().Invoke(null);
@@ -110,19 +110,25 @@ namespace GRPick.GRPick
 			if (data is null)
 				return (false, "Error loading data from query");
 
-			// Remove unwanted properties
-			var emptiedData = RemoveProperties(JObject.FromObject(data), [.. query.Properties]);
-
+			// Replace enum values with their text counterparts if requested
 			var settings = new JsonSerializerSettings();
 
-			// Replace enum values with their text counterparts if requested
 			if (query.UseEnumNames)
 				settings.Converters.Add(new StringEnumConverter());
+
+			if (query.Properties.Count == 0)
+				return (true, JsonConvert.SerializeObject(data, settings));
+
+			// Remove unwanted properties, if none are provided, don't remove anything
+			var emptiedData = RemoveProperties(JObject.FromObject(data), [.. query.Properties]);
 
 			return (true, JsonConvert.SerializeObject(emptiedData, settings));
 		}
 
 		private static JObject RemoveProperties(JObject data, List<string> properties, string currentPath = "") {
+			if (properties.Count == 0)
+				return data;
+
 			List<string> propertiesToRemove = [];
 
 			// Go trough each provided property

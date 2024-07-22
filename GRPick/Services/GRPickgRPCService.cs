@@ -14,7 +14,7 @@ using Newtonsoft.Json.Linq;
 
 namespace GRPick.Services
 {
-    public class GRPickgRPCService : GRPickResponder.GRPickResponderBase {
+	public class GRPickgRPCService : GRPickResponder.GRPickResponderBase {
 		private readonly GRPickService pickService = GRPickService.Instance;
 
 		public override Task<DataResponse> QueryData(QueryRequest request, ServerCallContext context) {
@@ -52,12 +52,37 @@ namespace GRPick.Services
 			return Task.FromResult(response);
 		}
 
+		public override Task<GetFunctionsResponse> GetAllQueries(GetQueries request, ServerCallContext context) {
+			var response = new GetFunctionsResponse();
+
+			foreach (var query in pickService.Queries) {
+				var pickQuery = new Function {
+					Name = query.Name,
+					ReturnType = query.ReturnType.ToString(),
+				};
+
+				// Arguments
+				foreach (var argument in query.GetParameters()) {
+					var pickArgument = new FunctionArgument {
+						Name = argument.Name,
+						Type = argument.ParameterType.ToString(),
+					};
+					pickQuery.Arguments.Add(pickArgument);
+				}
+
+				response.Functions.Add(pickQuery);
+			}
+
+			return Task.FromResult(response);
+		}
+
 		public override Task<GetFunctionsResponse> GetAllFunctions(GetFunctions request, ServerCallContext context) {
 			var response = new GetFunctionsResponse();
 
 			foreach (var function in pickService.Methods) {
 				var pickFunction = new Function {
 					Name = function.Name,
+					ReturnType = function.ReturnType.ToString(),
 				};
 
 				// Arguments
@@ -96,6 +121,7 @@ namespace GRPick.Services
 				foreach (var function in objectType.GetMethods()) {
 					var pickFunction = new Function {
 						Name = function.Name,
+						ReturnType = function.ReturnType.ToString(),
 					};
 
 					// Arguments

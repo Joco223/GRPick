@@ -6,6 +6,7 @@ package dataRequest;
 
 service GRPickResponder {
 	rpc GetAllObjects (GetObjects) returns (GetObjectsResponse);
+	rpc GetAllQueries (GetQueries) returns (GetFunctionsResponse);
 	rpc GetAllFunctions (GetFunctions) returns (GetFunctionsResponse);
 	rpc CallFunction (DataRequest) returns (DataResponse);
 	rpc QueryData (QueryRequest) returns (DataResponse);
@@ -37,6 +38,8 @@ message GetObjectsResponse {
 
 message GetFunctions {}
 
+message GetQueries {}
+
 message GetFunctionsResponse {
 	repeated Function functions = 1;
 }
@@ -54,7 +57,8 @@ message Property {
 
 message Function {
 	string name = 1;
-	repeated FunctionArgument arguments = 2;
+	string returnType = 2;
+	repeated FunctionArgument arguments = 3;
 }
 
 message FunctionArgument {
